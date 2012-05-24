@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project name="ScalaXXXX" 
+     default="packazing" 
+     xmlns:ivy="antlib:org.apache.ivy.ant" 
+     xmlns="antlib:org.apache.tools.ant">
+
+    <property environment="env" />
+    <!--jar file name settings-->
+    <property name="jar_name" value="scala-xxxx" />
+    <property name="version" value="0.1" />
+    
+    <!--project components settings-->
+    <dirname property="curdir" file="ant.file" />
+    <property name="prj_top" value="${curdir}" />
+    <property name="src_dir" value="${prj_top}/src" />
+    <property name="bin_dir" value="${prj_top}/bin" />
+    <property name="test_dir" value="${src_dir}/test" />
+    <property name="test_exclude" value="**/test/**/*" />
+    <property name="jar_dir" value="${prj_top}/jar" />
+    <property name="lib_dir" value="${prj_top}/lib" />
+    
+    <!--if "SCALA_HOME" is set to invalid value, check "SCALA_HOME" from your environment variables
+        and set it to "scala.home". if "SCALA_HOME" is not set, this build will be fail.-->
+    <target name="scala_inquiry">
+      <!--if scala_home is available, scala.home = scala_home,
+          else if env.SCALA_HOME is available, scala.home = env.SCALA_HOME,
+          else fail.-->
+        <echo message="Where is your scala home directory?
+               If invalid value was given, we try to find it from your environment variables.
+               (SCALA_HOME)" />
+        <input message="Where is your scala home?: "
+           addproperty="scala_home"
+           defaultvalue="${env.SCALA_HOME}" />
+    <echo>Checking whether scala_home is available...</echo>
+    <available file="${scala_home}" property="scala.home" value="${scala_home}" type="dir" />
+    </target>
+
+    <target name="scala_def" unless="scala.home" depends="scala_inquiry">
+      <echo>Your "scala_home" property is not available.</echo>
+      <echo>Checking whether "SCALA_HOME" environment variable is properly set...</echo>
+      <available file="${env.SCALA_HOME}" property="scala.home" value="${env.SCALA_HOME}" />
+      <fail message="Plz check scala_home property or SCALA_HOME env variable is properly set."
+        unless="scala.home" />
+      <echo>"scala.home" is set to ${scala.home}</echo>
+    </target>
+
+    <target name="checking.ivy">
+          <mkdir dir="${lib_dir}" />
+      <property name="ivy.jar" value="${lib_dir}/ivy.jar" />
+      <mkdir dir="${lib_dir}" />
+      <echo>Checking whether ${ivy.jar} exists.</echo>
+      <available file="${ivy.jar}" property="skip.download.ivy"/>     
+    </target>
+
+    <target name="download.ivy" unless="${skip.download.ivy}" depends="checking.ivy">
+      <echo>Downloading ivy.jar</echo>
+      <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.2.0/ivy-2.2.0.jar"
+           dest="${ivy.jar}"
+           usetimestamp="true"/>
+    </target>
+
+    <target name="ivy.bootstrap" depends="download.ivy">
+      <path id="ivy.jar.path">
+        <pathelement location="${ivy.jar}" />
+      </path>
+      <taskdef resource="org/apache/ivy/ant/antlib.xml"
+           uri="antlib:org.apache.ivy.ant"
+           classpathref="ivy.jar.path"/>
+    </target>
+
+    <target name="dependencies_resolver" depends="ivy.bootstrap">
+      <echo>Resolving dependencies...</echo>
+      <ivy:settings file="${prj_top}/ivysettings.xml" />
+      <ivy:resolve />
+      <ivy:retrieve />
+      <echo>Done.</echo>
+    </target>
+
+    <target name="cleancache" depends="ivy.bootstrap">
+      <echo>Cleaning cache.</echo>
+      <ivy:cleancache />
+      <echo>Done.</echo>
+    </target>
+
+    <target name="initialize" depends="dependencies_resolver, scala_def" if="scala.home">
+      <property name="scala-compiler" value="${scala.home}/lib/scala-compiler.jar" />
+      <property name="scala-library" value="${scala.home}/lib/scala-library.jar" />
+      <path id="build.classpath">
+        <fileset dir="${lib_dir}" />
+        <pathelement location="${scala-library}" />
+        <pathelement location="${bin_dir}" />
+      </path>
+      <taskdef resource="scala/tools/ant/antlib.xml">
+        <classpath>
+          <pathelement location="${scala-compiler}" />
+          <pathelement location="${scala-library}" />
+        </classpath>
+      </taskdef>
+    </target>
+    
+    <target name="compile" depends="initialize">
+      <delete dir="${bin_dir}" />
+      <mkdir dir="${bin_dir}" />
+      <scalac encoding="utf-8" srcdir="${src_dir}" destdir="${bin_dir}" classpathref="build.classpath">
+        <exclude name="${test_exclude}.scala" />
+        <include name="**/*.scala" />
+        <include name="**/*.java" />
+      </scalac>
+      <javac encoding="utf-8" srcdir="${src_dir}" destdir="${bin_dir}" classpathref="build.classpath">
+        <exclude name="${test_exclude}.java" />
+        <include name="**/*.java" />
+      </javac>
+    </target>
+    
+    <target name="test" description="test">
+    </target>
+    
+    <target name="packazing" depends="compile">
+      <delete dir="${jar_dir}" />
+      <mkdir dir="${jar_dir}" />
+      <jar destfile="${jar_dir}/${jar_name}-${version}.jar"
+           basedir="${bin_dir}"
+           excludes="${test_exclude}"
+           whenempty="create"
+           update="yes">
+      </jar>
+    </target>
+</project>

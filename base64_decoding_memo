@@ -1,0 +1,56 @@
+Base64 decoding memo
+
+A: characters of original string
+B: units of 8bit expression of "a"
+C: padding of '0'
+D: 6bit separated of "b" with "c" padding (base64 characters)
+E: padding of '='
+F: units of 4 characters
+G: base64 encoded characters
+
+A = B
+8 * B + C = 6 * D ---> (1)
+D + E = 4 * F ---> (2)
+G = 4 * F
+
+E is one of {0, 1, 2, 3}
+
+from (1), (2)
+8 * B + C = 6 * (4 * F - E)
+c = 24 * F - 6 * E - 8 * B
+  = 2 * (12 * F - 3 * E - 4 * B) ---> (3)
+
+C is one of {0, 1, 2, 3, 4, 5}
+but from (3) and F, B, E are all integer, so,
+C is one of {0, 2, 4} ---> (4)
+
+C = 8 * (3 * F - B) - 6 * E ---> (3)'
+
+[1] E = 0
+from (3)',
+C = 8 * (3 * F - B)
+C is integer, so from (4), C is 0,
+B = 3 * F
+
+[2] E = 1
+from (3)',
+C = 8 * (3 * F - B) - 6
+8 * (3 * F - B) must satisfy one of {6, 8, 10}
+(3 * F - B) must satisfy one of {6/8, 1, 10/8}
+same as [1],
+B = 3 * F - 1
+
+[3] E = 2
+from (3)',
+C = 8 * (3 * F - B) - 12
+8 * (3 * F - B) must satisfy one of {12, 14, 16}
+same as [1],
+B = 3 * F - 2
+
+[4] E = 3
+from (3)',
+C = 8 * (3 * F - B) - 9
+8 * (3 * F - B) must satisfy {9, 10, 11}
+(3 * F - B) must satisfy {9/8, 10/8, 11/8}
+F, B are all integer, so there is no pair satifying above.
+equal padding never be 3.

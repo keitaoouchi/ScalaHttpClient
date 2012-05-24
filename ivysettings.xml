@@ -1,0 +1,15 @@
+<ivysettings>
+    <settings />
+    <resolvers>
+        <url name="scalatest">
+            <artifact pattern="http://www.scala-tools.org/repo-releases/org/[organisation]/[artifact]/[revision]/[artifact]-[revision].[ext]" />
+        </url>
+        <ibiblio name="junit" m2compatible="true" usepoms="false"/>
+        <ibiblio name="commons-codec" m2compatible="true" usepoms="false"/>
+    </resolvers>
+    <modules>
+        <module organisation="scalatest" name="scalatest_2.9.0" resolver="scalatest" />
+        <module organisation="junit" name="junit" resolver="junit"/>
+        <module organisation="commons-codec" name="commons-codec" resolver="commons-codec" />
+    </modules>
+</ivysettings>

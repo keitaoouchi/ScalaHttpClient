@@ -1,0 +1,9 @@
+bin/
+eggs/
+parts/
+develop-eggs/
+downloads/
+src/
+testserver/
+bootstrap.py
+.installed.cfg

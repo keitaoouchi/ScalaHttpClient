@@ -1,0 +1,11 @@
+lib
+jar
+bin
+*.class
+.cache
+.project
+.cache
+.classpath
+.settings
+.pydevproject
+.scala_dependencies
