@@ -2,7 +2,7 @@
     <settings />
     <resolvers>
         <url name="scalatest">
-            <artifact pattern="http://www.scala-tools.org/repo-releases/org/[organisation]/[artifact]/[revision]/[artifact]-[revision].[ext]" />
+          <artifact pattern="https://oss.sonatype.org/content/groups/public/org/[organisation]/[artifact]/[revision]/[artifact]-[revision].[ext]" />
         </url>
         <ibiblio name="junit" m2compatible="true" usepoms="false"/>
         <ibiblio name="commons-codec" m2compatible="true" usepoms="false"/>
